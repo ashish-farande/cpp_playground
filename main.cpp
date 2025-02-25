@@ -4,8 +4,8 @@
 
 int main()
 {
-    // testConcepts();
-    // testRanges();
+    testConcepts();
+    testRanges();
 
     testSharedPtr();
     return EXIT_SUCCESS;
