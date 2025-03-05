@@ -10,7 +10,7 @@
 template <typename T>
 void writeToFile(std::ofstream &file, const T &arg)
 {
-    file << arg;
+    file << arg << " ";
 }
 
 template <typename T, typename... Args>
@@ -23,27 +23,49 @@ void writeToFile(std::ofstream &file, const T &arg, const Args &...args)
 template <class F, class... Args>
 void log(Args const &...args)
 {
-    std::ofstream file_out("data.txt", std::ios::app);
+    std::ofstream file_out("log.txt", std::ios::app);
     file_out << "\n";
-    file_out << meta_data_node<F, Args...>.id;
+    file_out << meta_data_node<F, Args...>.id << " ";
     writeToFile(file_out, args...);
     file_out.close();
 }
 
-struct LogInitializer {
-    LogInitializer() {
+struct LogInitializer
+{
+    LogInitializer()
+    {
+        std::ofstream logfile("log.txt", std::ios::out | std::ios::trunc);
+        if (logfile.is_open())
+            logfile.close();
+
         int size = 0;
         std::ofstream file("metadata.txt");
-        auto& temp = head_node();
+        auto &temp = head_node();
 
-        while(temp != nullptr)
+        while (temp != nullptr)
         {
             ++size;
-            file << temp->id << " " << temp->data << "\n";
+            file << temp->id << " | " << (int)temp->data->macroData.level << " | " << temp->data->macroData.file << " | " << temp->data->macroData.line << " | " << temp->data->macroData.function << " | " << temp->data->macroData.fmt_str << " | ";
+            for (const auto &desc : temp->data->desciprtors)
+            {
+                if (std::get_if<Int>(&desc))
+                {
+                    file << "int ";
+                }
+                else if (std::get_if<Float>(&desc))
+                {
+                    file << "float ";
+                }
+                else if (std::get_if<CStr>(&desc))
+                {
+                    file << "char* ";
+                }
+            }
+
+            file << "\n";
             temp = temp->next;
         }
-        std::cout<<"Total Number of nodes: "<<size<<"\n";
-
+        std::cout << "Total Number of nodes: " << size << "\n";
     }
 };
 
